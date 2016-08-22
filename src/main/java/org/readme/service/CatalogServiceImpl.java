@@ -1,6 +1,8 @@
 package org.readme.service;
 
 import org.readme.dao.CatalogDAO;
+import org.readme.exception.BadRequestException;
+import org.readme.exception.NotFoundException;
 import org.readme.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,28 +24,36 @@ public class CatalogServiceImpl implements CatalogService{
 	CatalogDAO catalogDAO;
 
 	@Transactional
-	public void createBook(Book book) {
+	public void createBook(Book book) throws BadRequestException{
 		catalogDAO.createBook(book);
 	}
 
 	@Transactional
-	public Book findBookById(int id) {
-		return catalogDAO.findBookById(id);
+	public Book findBookById(int id) throws NotFoundException {
+		Book book = catalogDAO.findBookById(id);
+		if(book==null)
+			throw new NotFoundException("Book Not Found");
+		return book;
 	}
 
 	@Transactional
-	public Book findBookByTitle(String title) {
-		return catalogDAO.findBookByTitle(title);
+	public Book findBookByTitle(String title) throws NotFoundException {
+		Book book = catalogDAO.findBookByTitle(title);
+		if(book==null)
+			throw new NotFoundException("Book Not Found");
+		return book;
 	}
 
 	@Transactional
-	public void deleteBook(int id) {
+	public void deleteBook(int id) throws NotFoundException{
 		catalogDAO.deleteBook(id);
 	}
 
 	@Transactional
-	public void updateBook(Book book) {
-		catalogDAO.updateBook(book);
+	public void updateBook(Book book, int id) throws NotFoundException, BadRequestException {
+		if(id!=book.getId())
+			throw new BadRequestException("Id in json does not match Id in url");
+		catalogDAO.updateBook(book, id);
 	}
 
 }

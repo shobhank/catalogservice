@@ -2,6 +2,9 @@
 <suite name="test-parameter">
 	<test name="CatalogTest">
 		<parameter name="id_1" value="1" />
+		<parameter name="id_0" value="0" />
+		<parameter name="title_invalid" value="invalid" />
+		<parameter name="title_Dig" value="Dig" />
 		<groups>
 			<run>
    				<include name="DAO" />

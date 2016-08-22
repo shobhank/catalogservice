@@ -1,9 +1,5 @@
 package org.readme.dao;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.List;
 
 import javax.sql.DataSource;
@@ -11,6 +7,8 @@ import javax.sql.DataSource;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
+import org.readme.exception.BadRequestException;
+import org.readme.exception.NotFoundException;
 import org.readme.model.Book;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -29,8 +27,11 @@ public class CatalogDAOImpl implements CatalogDAO{
 	@Autowired
 	private DataSource dataSource;
 
-	public void createBook(Book book) {
-		sessionFactory.getCurrentSession().persist(book);
+	public void createBook(Book book) throws BadRequestException {
+		Book oldBook = findBookById(book.getId());
+		if(oldBook!=null)
+			throw new BadRequestException("Book Entry Already Exists");
+		sessionFactory.getCurrentSession().saveOrUpdate(book);
 	}
 
 	public Book findBookById(int id) {
@@ -39,19 +40,26 @@ public class CatalogDAOImpl implements CatalogDAO{
 
 	public Book findBookByTitle(String title) {
 		@SuppressWarnings("unchecked")
-		List<Book> books = sessionFactory.getCurrentSession().createCriteria(Book.class).add(Restrictions.eq("title", title)).list();
-		return books.get(0);
+		List<Book> books = sessionFactory.getCurrentSession().createCriteria(Book.class).add(Restrictions.eq("title", title).ignoreCase()).list();
+		return books.size()==0?null:books.get(0);
 	}
 
-	public void deleteBook(int id) {
+	public void deleteBook(int id) throws NotFoundException {
 		Session session = sessionFactory.getCurrentSession();
-		Book book = (Book) session.load(Book.class, id);
-		if(book!=null)
-			sessionFactory.getCurrentSession().delete(book);
+		Book book = (Book) session.get(Book.class, id);
+		if(book==null)
+			throw new NotFoundException("Book Not Found");
+		sessionFactory.getCurrentSession().delete(book);
 	}
 
-	public void updateBook(Book book) {
-		sessionFactory.getCurrentSession().update(book);
+	public void updateBook(Book newBook, int id) throws NotFoundException {
+		Session session = sessionFactory.getCurrentSession();
+		Book oldBook = (Book) session.get(Book.class, id);
+		if(oldBook == null){
+			throw new NotFoundException("Book Not Found");
+		}
+		session.evict(oldBook); 
+		session.update(newBook);
 	}
 
 }
