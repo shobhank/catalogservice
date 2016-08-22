@@ -1,0 +1,14 @@
+<!DOCTYPE suite SYSTEM "http://beust.com/testng/testng-1.0.dtd" >
+<suite name="test-parameter">
+	<test name="CatalogTest">
+		<parameter name="id_1" value="1" />
+		<groups>
+			<run>
+   				<include name="DAO" />
+			</run>
+		</groups>
+		<packages>
+			<package name="org.readme.test.*" />
+		</packages>
+	</test>
+</suite>
