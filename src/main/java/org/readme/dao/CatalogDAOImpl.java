@@ -43,6 +43,12 @@ public class CatalogDAOImpl implements CatalogDAO{
 		List<Book> books = sessionFactory.getCurrentSession().createCriteria(Book.class).add(Restrictions.eq("title", title).ignoreCase()).list();
 		return books.size()==0?null:books.get(0);
 	}
+	
+	public List<Book> findBookByAuthor(String author){
+		@SuppressWarnings("unchecked")
+		List<Book> books = sessionFactory.getCurrentSession().createCriteria(Book.class).add(Restrictions.eq("author", author).ignoreCase()).list();
+		return books;
+	}
 
 	public void deleteBook(int id) throws NotFoundException {
 		Session session = sessionFactory.getCurrentSession();

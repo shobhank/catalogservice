@@ -1,5 +1,7 @@
 package org.readme.service;
 
+import java.util.List;
+
 import org.readme.dao.CatalogDAO;
 import org.readme.exception.BadRequestException;
 import org.readme.exception.NotFoundException;
@@ -42,6 +44,14 @@ public class CatalogServiceImpl implements CatalogService{
 		if(book==null)
 			throw new NotFoundException("Book Not Found");
 		return book;
+	}
+	
+	@Transactional
+	public List<Book> findBookByAuthor(String author) throws NotFoundException {
+		List<Book> books = catalogDAO.findBookByAuthor(author);
+		if(books==null || books.size()==0)
+			throw new NotFoundException("Book Not Found");
+		return books;
 	}
 
 	@Transactional

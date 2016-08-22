@@ -1,6 +1,9 @@
 package org.readme.controller;
 
 import java.net.URISyntaxException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 import org.readme.exception.BadRequestException;
 import org.readme.exception.ErrorResponse;
@@ -39,8 +42,13 @@ public class ManageCatalogController {
 	}
 	
 	@RequestMapping(method = RequestMethod.GET, produces = "application/json; charset=utf-8")
-	public @ResponseBody Book getBookByTitle(@RequestParam("q") String name) throws NotFoundException{
-		return catalogService.findBookByTitle(name);
+	public @ResponseBody List<Book> getBookByTitleOrAuthor(@RequestParam(value = "q", required = false)  String name,  @RequestParam(value = "a", required = false) String author) throws NotFoundException, BadRequestException{
+		if(name==null && author==null)
+			throw new BadRequestException("You need to pass a filter param");
+		if(name!=null && !name.isEmpty())
+			return new ArrayList<>(Arrays.asList(catalogService.findBookByTitle(name)));
+		else 
+			return catalogService.findBookByAuthor(author);
 	}
 
 	@RequestMapping(method = RequestMethod.POST, produces = "application/json; charset=utf-8")
